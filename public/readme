@@ -1,0 +1,153 @@
+Guia de Desenvolvimento do Sistema GED
+1. Visão Geral do Projeto
+Esta é uma aplicação PHP MVC para gerenciamento de documentos e colaboradores (GED = Gestão Eletrônica de Documentos). Utiliza um sistema de rotas, controllers, models e views customizado, com lógica de autenticação e permissões. A interface é baseada no template NiceAdmin (Bootstrap 5).
+
+2. Configuração do Ambiente de Desenvolvimento
+Servidor: A aplicação foi desenvolvida para rodar em um ambiente como o XAMPP (Apache + MySQL + PHP).
+
+Banco de Dados:
+
+Crie um banco de dados MySQL (ex: ged_db).
+
+Importe o schema SQL para criar todas as tabelas necessárias.
+
+Configuração do Apache:
+
+Certifique-se de que o módulo mod_rewrite está ativado no arquivo C:\xampp\apache\conf\httpd.conf (a linha LoadModule rewrite_module modules/mod_rewrite.so deve estar descomentada).
+
+No mesmo arquivo, garanta que a diretiva AllowOverride para o diretório htdocs esteja como All.
+
+Reinicie o Apache após qualquer alteração.
+
+Arquivo de Configuração:
+
+Edite o arquivo config/config.php.
+
+Ajuste as credenciais do banco de dados (DB_HOST, DB_USER, DB_PASS, DB_NAME).
+
+Muito Importante: Ajuste a constante URLROOT para a URL exata do seu projeto (ex: http://localhost/ged_system/public).
+
+Acesso: O ponto de entrada do sistema é a pasta public. Acesse o sistema pelo navegador em: http://localhost/seu_projeto/public/.
+
+3. Arquitetura MVC
+A aplicação segue o padrão Model-View-Controller para separar as responsabilidades.
+
+Fluxo de uma Requisição:
+O usuário acessa uma URL (ex: .../public/colaboradores/show/1).
+
+O .htaccess na pasta public captura a requisição e a redireciona para o public/index.php.
+
+public/index.php (Ponto de Entrada) carrega as configurações e o núcleo do sistema.
+
+A classe app/core/Core.php (Roteador) analisa a URL:
+
+colaboradores -> ColaboradoresController
+
+show -> método show()
+
+1 -> parâmetro $id
+
+O Controller (ColaboradoresController) é instanciado e o método show(1) é chamado.
+
+O Controller solicita dados ao Model (Colaborador.php), que interage com o banco de dados.
+
+O Model retorna os dados para o Controller.
+
+O Controller carrega a View (colaboradores/show.php), passando os dados para ela.
+
+A View renderiza o HTML final, que é enviado de volta ao navegador.
+
+Estrutura de Pastas:
+/app/: Contém o núcleo da aplicação (lógica, regras de negócio).
+
+controllers/: Controlam o fluxo, recebem requisições e respondem.
+
+models/: Gerenciam os dados e a interação com o banco.
+
+views/: Contêm o HTML e a lógica de apresentação.
+
+core/: Classes base do framework (Database, Controller, Core).
+
+helpers/: Funções auxiliares.
+
+/config/: Arquivos de configuração.
+
+/public/: A única pasta acessível publicamente. Contém o index.php, CSS, JS, imagens e arquivos de upload.
+
+4. Estrutura do Banco de Dados
+usuarios: Armazena os usuários que podem fazer login no sistema.
+
+colaboradores: Armazena os dados cadastrais completos dos colaboradores (funcionários).
+
+grupos: Define os grupos de usuários (ex: Administradores, Usuários Padrão).
+
+permissoes: Lista todas as ações possíveis no sistema (ex: create_collaborator).
+
+grupo_permissoes: Tabela de ligação que define quais permissões cada grupo possui.
+
+departamentos, unidades: Tabelas de apoio para os cadastros.
+
+arquivos: Armazena os metadados dos PDFs enviados, com links para usuários e colaboradores.
+
+5. Convenções e Boas Práticas
+Nomenclatura:
+
+Controllers: NomeModuloController.php (ex: PdfsController).
+
+Models: NomeDaEntidade.php, no singular (ex: User, Colaborador).
+
+Views: app/views/nome_modulo/acao.php (ex: users/index.php).
+
+Métodos: camelCase (ex: getById).
+
+Segurança:
+
+Toda interação com o banco de dados deve passar por um Model e usar prepared statements (via método bind()).
+
+Toda exibição de dados vindos do banco na View deve usar htmlspecialchars() para prevenir XSS.
+
+Toda ação que modifica dados (criar, editar, excluir) deve ser protegida por uma verificação de permissão no Controller: if (!in_array('chave', $_SESSION['user_permissions'])).
+
+Ações de exclusão devem usar o método POST para prevenir exclusão acidental.
+
+Uploads:
+
+Arquivos físicos são salvos em public/uploads/.
+
+O caminho para o arquivo é salvo no banco de dados, nunca o arquivo em si (BLOB).
+
+Use uniqid() para gerar nomes de arquivo únicos e evitar conflitos.
+
+6. Como Adicionar um Novo Módulo CRUD (Ex: "Fornecedores")
+Banco de Dados: Crie a tabela fornecedores no banco.
+
+Model: Crie o arquivo app/models/Fornecedor.php com os métodos getAll(), getById(), create(), update(), delete().
+
+Controller: Crie o arquivo app/controllers/FornecedoresController.php com os métodos index(), create(), edit($id), delete($id). Proteja cada método com a permissão apropriada.
+
+Views: Crie a pasta app/views/fornecedores/ e dentro dela os arquivos index.php (lista) e create_edit.php (formulário).
+
+Permissões: Adicione as novas chaves de permissão (ex: view_suppliers_list, create_supplier) na tabela permissoes via SQL.
+
+Gerenciamento: Use a tela "Grupos e Permissões" para dar as novas permissões a um grupo de administradores.
+
+Menu: Edite o app/views/inc/sidebar.php para adicionar o novo link, protegido pela permissão de visualização.
+
+7. Dicas para Depuração (Troubleshooting)
+Tela Branca: Significa um erro fatal de PHP. Habilite a exibição de erros adicionando ini_set('display_errors', 1); error_reporting(E_ALL); no topo de public/index.php. A causa mais comum é um erro de sintaxe.
+
+Erro 404 (Not Found):
+
+Verifique se o mod_rewrite do Apache está ativo.
+
+Verifique se o arquivo .htaccess está na pasta public e com o conteúdo correto.
+
+Verifique se a constante URLROOT em config/config.php está correta.
+
+Verifique se há erros de digitação no nome do Controller ou do Método na URL/link.
+
+Menu ou Botão Não Aparece: É um problema de permissão. O usuário logado não tem a permissão necessária. Verifique a tabela grupo_permissoes e lembre-se de fazer logout e login novamente após alterar permissões.
+
+Erro de "Duplicate Entry": A aplicação está tentando salvar um valor que já existe em uma coluna UNIQUE (como email ou cpf). Adicione uma validação no Controller para verificar se o dado já existe antes de tentar salvar.
+
+Erro de "Foreign Key Constraint Fails": Você está tentando salvar um registro que se refere a um ID que não existe em uma tabela relacionada (ex: salvando um colaborador com um departamento_id que não existe). Verifique se as tabelas de apoio (departamentos, unidades) têm dados.

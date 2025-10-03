@@ -1,0 +1,116 @@
+/* Botão Flutuante do Chat */
+.chat-toggle-btn {
+    position: fixed;
+    right: 15px;
+    bottom: 75px; /* Acima do botão "back-to-top" */
+    z-index: 995;
+    background: var(--bs-primary);
+    width: 44px;
+    height: 44px;
+    border-radius: 50px;
+    transition: all 0.4s;
+}
+
+.chat-toggle-btn i {
+    font-size: 24px;
+    color: #fff;
+    line-height: 0;
+}
+
+.chat-toggle-btn:hover {
+    background: #5a6ce0;
+}
+
+.chat-toggle-btn .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+}
+
+/* Container do Widget de Chat */
+.chat-widget-container {
+    position: fixed;
+    bottom: 130px;
+    right: 15px;
+    width: 350px;
+    max-width: 90vw;
+    height: 500px;
+    max-height: 70vh;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+    z-index: 996;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    transform-origin: bottom right;
+}
+
+.chat-widget-container.open {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Cabeçalho do Widget */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #f8f9fa;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.chat-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Corpo do Widget (Lista de usuários e conversa) */
+.chat-body {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.chat-users-list {
+    flex-basis: 100%;
+    overflow-y: auto;
+}
+
+.chat-user-button {
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.chat-conversation {
+    flex-basis: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-box {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #fff;
+}
+
+.message-bubble {
+    word-wrap: break-word;
+}
+
+/* Formulário de Envio */
+.chat-form-container {
+    padding: 10px;
+    border-top: 1px solid #eee;
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
